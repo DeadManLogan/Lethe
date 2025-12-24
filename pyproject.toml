@@ -1,0 +1,15 @@
+[project]
+name = "Lethe"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "DeadManLogan", email = "grigoroudisdimosthenis@gmail.com"},
+]
+dependencies = []
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
