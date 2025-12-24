@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [
     {name = "DeadManLogan", email = "grigoroudisdimosthenis@gmail.com"},
 ]
-dependencies = []
+dependencies = ["duckdb>=1.4.3"]
 requires-python = "==3.11.*"
 readme = "README.md"
 license = {text = "MIT"}
