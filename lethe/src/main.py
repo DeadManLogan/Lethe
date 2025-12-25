@@ -1,8 +1,9 @@
-from config import Settings
-from src.database.connection import connect
+from lethe.config import Settings
+from database.connection import connect
 
 settings = Settings()
 
+print(settings.DATA_DIR)
 con = connect(settings.DATA_DIR)
 
 con.execute(
