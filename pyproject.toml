@@ -24,7 +24,7 @@ lint = [
 target-version = "py311"
 line-length = 100
 select = ["E", "F", "I", "B", "N", "D"]
-ignore = ["D104"]
+ignore = ["D104", "D100"]
 
 [tool.black]
 line-length = 100
