@@ -1,6 +1,8 @@
-import duckdb
 from pathlib import Path
 
+import duckdb
+
+
 def connect(data_dir: str):
-    DB_PATH = Path(data_dir) / "lethe.duckdb"
-    return duckdb.connect(DB_PATH)
+    db_path = Path(data_dir) / "lethe.duckdb"
+    return duckdb.connect(db_path)

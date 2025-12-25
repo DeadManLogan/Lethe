@@ -1,14 +1,12 @@
-import duckdb
-from pathlib import Path
 from config import Settings
-
 from src.database.connection import connect
 
 settings = Settings()
 
 con = connect(settings.DATA_DIR)
 
-con.execute("""
+con.execute(
+    """
 CREATE SCHEMA IF NOT EXISTS bronze;
 DROP TABLE IF EXISTS bronze.transaction_raw;
 CREATE TABLE bronze.transaction_raw AS
@@ -17,11 +15,16 @@ FROM read_csv_auto(
     'lethe/data/raw/financial_fraud_detection_dataset.csv',
     header=true
 );
-""")
+""",
+)
 
-print(con.execute("""
+print(
+    con.execute(
+        """
 DESCRIBE bronze.transaction_raw
-""").fetchall())
+""",
+    ).fetchall(),
+)
 
 
 con.close()
