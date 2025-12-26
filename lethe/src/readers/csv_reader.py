@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from duckdb import DuckDBPyConnection
@@ -5,7 +6,7 @@ from duckdb import DuckDBPyConnection
 
 class CSVReader:
     """Ingest csv file to DuckDB.
-    
+
     Accepts local file path, db schema and table as args.
     Validates them. Creates if they don't exist.
     """
@@ -16,11 +17,23 @@ class CSVReader:
         self.schema = schema
         self.table = table
 
+    def validate(self):
+        """Orchestrate validation."""
+        self.validate_path()
+        self.validate_identifiers()
+
     def validate_path(self):
         """Check that csv file path exists."""
         path = Path(self.path)
         if not path.exists():
             raise FileNotFoundError(f"Path {self.path} doesn't exist.")
+
+    def validate_identifiers(self):
+        """Use regex pattern to prevent SQL injection."""
+        pattern = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+        for value in [self.schema, self.table]:
+            if not pattern.match(value):
+                raise ValueError(f"Invalid identifier: {value}")
 
     def ingest(self, con: DuckDBPyConnection):
         con.execute(
