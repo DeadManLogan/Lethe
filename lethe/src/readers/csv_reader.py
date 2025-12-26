@@ -17,6 +17,61 @@ class CSVReader:
         self.schema = schema
         self.table = table
 
+    def ingest(self, con: DuckDBPyConnection):
+        """Create table once, skip if exists."""
+        self.validate()
+        self.create_schema(con)
+
+        if self.table_exists(con):
+            print(f"Table {self.table} already exists")
+            return
+
+        self.ingest_raw(con)
+
+    def create_schema(self, con: DuckDBPyConnection):
+        """Create DuckDB schema."""
+        con.execute(
+            f"""
+            CREATE SCHEMA IF NOT EXISTS {self.schema};
+        """
+        )
+
+    def ingest_raw(self, con: DuckDBPyConnection):
+        """Create DuckDB table based on csv file."""
+        con.execute(
+            f"""
+            CREATE TABLE {self.schema}.{self.table} AS
+            SELECT *
+            FROM read_csv_auto('{self.path}', header=true);
+        """
+        )
+
+    def drop_table(self, con: DuckDBPyConnection):
+        """Drop DuckDB table."""
+        con.execute(
+            f"""
+            DROP TABLE IF EXISTS {self.schema}.{self.table};
+        """
+        )
+
+    def table_exists(self, con: DuckDBPyConnection) -> bool:
+        """Check whether target table already exists.
+
+        Query DuckDB metadata about the table
+        and not actual data.The query returns 0 or 1,
+        depends on the existance of the table.
+        """
+        result = con.execute(
+            f"""
+            SELECT COUNT(*) 
+            FROM information_schema.tables
+            WHERE table_schema = '{self.schema}'
+            AND table_name = '{self.table}';
+        """
+        ).fetchone()[0]
+
+        return result > 0
+
     def validate(self):
         """Orchestrate validation."""
         self.validate_path()
@@ -34,19 +89,6 @@ class CSVReader:
         for value in [self.schema, self.table]:
             if not pattern.match(value):
                 raise ValueError(f"Invalid identifier: {value}")
-
-    def ingest(self, con: DuckDBPyConnection):
-        con.execute(
-            f"""
-            CREATE SCHEMA IF NOT EXISTS {self.schema};
-
-            DROP TABLE IF EXISTS {self.schema}.{self.table};
-
-            CREATE TABLE {self.schema}.{self.table} AS
-            SELECT *
-            FROM read_csv_auto('{self.path}', header=true);
-        """
-        )
 
         # todo
         # logger for reader
