@@ -1,5 +1,6 @@
-from lethe.config import Settings
 from database.connection import connect
+
+from lethe.config import Settings
 
 settings = Settings()
 
