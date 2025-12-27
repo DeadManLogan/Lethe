@@ -10,5 +10,7 @@ csv_reader = CSVReader(
 con = connect(settings.DATA_DIR)
 
 csv_reader.ingest(con)
+csv_reader.table_preview(con)
+csv_reader.table_details(con)
 
 con.close()

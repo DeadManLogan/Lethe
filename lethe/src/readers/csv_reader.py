@@ -89,7 +89,20 @@ class CSVReader:
         for value in [self.schema, self.table]:
             if not pattern.match(value):
                 raise ValueError(f"Invalid identifier: {value}")
+            
+    def table_preview(self, con:DuckDBPyConnection):
+        """Return 5 rows of table data."""
+        print(con.execute(f"""
+            SELECT * 
+            FROM {self.schema}.{self.table}
+            LIMIT 5;
+        """
+        ).fetchall())
 
-        # todo
-        # logger for reader
-        # break the ingeset to several private methods (schema, drop, create)
+    def table_details(self, con:DuckDBPyConnection):
+        """Describe table."""
+        print(con.execute(f"""
+                DESCRIBE {self.schema}.{self.table};
+                """
+        ).fetchall())
+
