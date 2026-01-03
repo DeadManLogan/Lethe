@@ -109,3 +109,35 @@ def test_table_exists_true():
     con.execute("CREATE SCHEMA test_schema")
     con.execute("""CREATE TABLE test_schema.test_table (id INTEGER)""")
     assert reader.table_exists(con) is True
+
+def test_ingest_creates_table_when_missing(tmp_path: Path):
+    """Test that table is created when it's new."""
+    csv = tmp_path / "data.csv"
+    csv.write_text("id,name\n1,Alice\n2,Bob\n")
+
+    con = duckdb.connect(":memory:")
+    reader = CSVReader(str(csv), "test_schema", "people")
+
+    reader.ingest(con)
+
+    assert reader.table_exists(con) is True
+
+def test_ingest_skips_when_table_exists(tmp_path: Path):
+    """Test the skip of the table creation."""
+    csv = tmp_path / "data.csv"
+    csv.write_text("id\n1\n")
+
+    con = duckdb.connect(":memory:")
+    con.execute("CREATE SCHEMA test_schema")
+    con.execute("CREATE TABLE test_schema.people (id INTEGER)")
+
+    reader = CSVReader(str(csv), "test_schema", "people")
+
+    reader.ingest(con)
+
+    result = con.execute(
+        "SELECT COUNT(*) FROM test_schema.people"
+    ).fetchone()[0]
+
+    assert result == 0
+

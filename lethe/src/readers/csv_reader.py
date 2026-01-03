@@ -125,16 +125,18 @@ class CSVReader:
             LIMIT 5;
         """
         ).fetchall()
+        logger.info(result)
 
         return result
 
-    def table_details(self, con: DuckDBPyConnection):
+    def table_details(self, con: DuckDBPyConnection) -> list:
         """Describe table."""
         logger.debug("Describing table %s.%s", self.schema, self.table)
-        logger.info(
-            con.execute(
-                f"""
-                DESCRIBE {self.schema}.{self.table};
-                """
-            ).fetchall()
-        )
+        details = con.execute(
+            f"""
+            DESCRIBE {self.schema}.{self.table};
+            """
+        ).fetchall()
+        logger.info(details)
+
+        return details
