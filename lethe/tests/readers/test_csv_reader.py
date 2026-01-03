@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 
+import duckdb
 import pytest
 
 from lethe.src.readers.csv_reader import CSVReader
@@ -67,14 +68,14 @@ def test_validate_path(tmp_path: Path, should_exist: bool):
 
 
 @pytest.mark.parametrize("schema, table", VALID_IDENTIFIERS)
-def test_validate_identifiers(self, schema: str, table: str):
+def test_validate_identifiers(schema: str, table: str):
     """Test valid identifirers pass."""
     reader = CSVReader("dummy.csv", schema, table)
     reader.validate_identifiers()
 
 
 @pytest.mark.parametrize("schema, table, expected_invalid", INVALID_IDENTIFIERS)
-def test_validate_identifiers_invalid(self, schema: str, table: str, expected_invalid: str):
+def test_validate_identifiers_invalid(schema: str, table: str, expected_invalid: str):
     """Test that invalid identifiers are rejected."""
     reader = CSVReader("dummy.csv", schema, table)
 
@@ -83,9 +84,28 @@ def test_validate_identifiers_invalid(self, schema: str, table: str, expected_in
 
 
 @pytest.mark.parametrize("schema, table", SQL_INJECTION_ATTEMPTS)
-def test_validate_identifiers_sql_injection(self, schema: str, table: str):
+def test_validate_identifiers_sql_injection(schema: str, table: str):
     """Test that SQL injection attempts are blocked."""
     reader = CSVReader("dummy.csv", schema, table)
 
     with pytest.raises(ValueError):
         reader.validate_identifiers()
+
+
+def test_table_exists_false():
+    """Assert False because table doesn't exist in db."""
+    con = duckdb.connect(":memory:")
+    reader = CSVReader("dummy.csv", "test_schema", "test_table")
+
+    con.execute("CREATE SCHEMA test_schema")
+    assert reader.table_exists(con) is False
+
+
+def test_table_exists_true():
+    """Assert True for table in db."""
+    con = duckdb.connect(":memory:")
+    reader = CSVReader("dummy.csv", "test_schema", "test_table")
+
+    con.execute("CREATE SCHEMA test_schema")
+    con.execute("""CREATE TABLE test_schema.test_table (id INTEGER)""")
+    assert reader.table_exists(con) is True
