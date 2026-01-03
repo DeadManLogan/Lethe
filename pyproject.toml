@@ -1,0 +1,57 @@
+[project]
+name = "Lethe"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "DeadManLogan", email = "grigoroudisdimosthenis@gmail.com"},
+]
+dependencies = ["duckdb>=1.4.3"]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[dependency-groups]
+lint = [
+    "ruff>=0.14.10",
+    "black>=25.12.0",
+]
+test = [
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["E", "F", "I", "B", "N", "D"]
+ignore = ["D104", "D100"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["lethe"]
+addopts = "-ra -q"
+
+[tool.pdm]
+distribution = false
+
+[tool.pdm.scripts]
+lint = { composite = [
+    "ruff check .",
+    "black --check ."
+] }
+format = { composite = [
+    "black .",
+    "ruff check . --fix"
+] }
+test = { composite = [
+    "coverage run --source lethe -m pytest",
+    "coverage report"
+] }
+
+
