@@ -1,0 +1,18 @@
+# Defines the structure and rules for the silver (cleaned) layer
+
+table_name: transactions
+source_schema: bronze
+source_table: transactions
+target_schema: silver
+target_table: transactions
+
+description: "Cleaned fraud detection transactions ready for privacy transformations"
+
+columns:
+  transaction_id:
+    type: VARCHAR
+    nullable: false
+    unique: true
+    description: "Unique transaction identifier"
+    sensitivity: CRITICAL
+    next_stage_transform: pseudonymize
