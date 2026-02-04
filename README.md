@@ -16,3 +16,12 @@ pdm install
 ```
 
 Your raw data files should be placed on `lethe/data/raw`. The duckdb config file will be created on `lethe/duckdb`.
+
+To activate virtual environment:
+```bash
+.\.venv\Scripts\activate
+```
+To run a script:
+```python
+python -m lethe.src.main
+```
