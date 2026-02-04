@@ -6,13 +6,155 @@ source_table: transactions
 target_schema: silver
 target_table: transactions
 
-description: "Cleaned fraud detection transactions ready for privacy transformations"
-
 columns:
   transaction_id:
     type: VARCHAR
     nullable: false
     unique: true
     description: "Unique transaction identifier"
+    sensitivity: CRITICAL
+    next_stage_transform: pseudonymize
+
+  timestamp:
+    type: TIMESTAMP
+    nullable: false
+    description: "When transaction occurred"
+    sensitivity: HIGH
+    next_stage_transform: generalize
+    semantic_rules:
+      - rule: "<= CURRENT_TIMESTAMP"
+        message: "Timestamp cannot be in future"
+        on_violation: drop
+
+  sender_account:
+    type: VARCHAR
+    nullable: false
+    description: "Account sending money"
+    sensitivity: CRITICAL
+    next_stage_transform: pseudonymize
+    
+  receiver_account:
+    type: VARCHAR
+    nullable: false
+    description: "Account receiving money"
+    sensitivity: CRITICAL
+    next_stage_transform: pseudonymize
+    
+  amount:
+    type: DOUBLE
+    nullable: false
+    description: "Transaction amount in dollars"
+    sensitivity: MEDIUM
+    next_stage_transform: keep
+    semantic_rules:
+      - rule: ">= 0"
+        message: "Amount must be non-negative"
+        on_violation: drop
+    
+  transaction_type:
+    type: VARCHAR
+    nullable: false
+    description: "Type of transaction"
+    sensitivity: PUBLIC
+    next_stage_transform: keep
+    semantic_rules:
+      - rule: "IN ('withdrawal', 'transfer', 'payment', 'deposit')"
+        message: "Invalid transaction type"
+        on_violation: flag  # Log warning but keep row
+    
+  merchant_category:
+    type: VARCHAR
+    nullable: false
+    description: "Merchant category"
+    sensitivity: PUBLIC
+    next_stage_transform: keep
+    
+  location:
+    type: VARCHAR
+    nullable: false
+    description: "Transaction location (city)"
+    sensitivity: HIGH
+    next_stage_transform: generalize
+    
+  device_used:
+    type: VARCHAR
+    nullable: false
+    description: "Device type used (mobile, ATM, web, POS)"
+    sensitivity: PUBLIC
+    next_stage_transform: keep
+    
+  is_fraud:
+    type: BOOLEAN
+    nullable: false
+    default: false
+    description: "Whether transaction is fraudulent"
+    sensitivity: PUBLIC
+    next_stage_transform: keep
+    
+  fraud_type:
+    type: VARCHAR
+    nullable: true
+    description: "Type of fraud detected (only if is_fraud=true)"
+    sensitivity: PUBLIC
+    next_stage_transform: keep
+    semantic_rules:
+      - rule: "IF is_fraud = true THEN fraud_type IS NOT NULL"
+        message: "Fraudulent transactions should have fraud_type"
+        on_violation: flag
+    
+  time_since_last_transaction:
+    type: DOUBLE
+    nullable: true
+    description: "Seconds since last transaction from this account"
+    sensitivity: LOW
+    next_stage_transform: keep
+    
+  spending_deviation_score:
+    type: DOUBLE
+    nullable: true
+    description: "Deviation from normal spending pattern"
+    sensitivity: LOW
+    next_stage_transform: keep
+    
+  velocity_score:
+    type: BIGINT
+    nullable: true
+    description: "Transaction velocity indicator"
+    sensitivity: LOW
+    next_stage_transform: keep
+    semantic_rules:
+      - rule: ">= 0"
+        message: "Velocity score must be non-negative"
+        on_violation: null
+    
+  geo_anomaly_score:
+    type: DOUBLE
+    nullable: true
+    description: "Geographic anomaly score (0-1 range)"
+    sensitivity: LOW
+    next_stage_transform: keep
+    semantic_rules:
+      - rule: "BETWEEN 0 AND 1"
+        message: "Geo anomaly score must be between 0 and 1"
+        on_violation: null
+    
+  payment_channel:
+    type: VARCHAR
+    nullable: false
+    description: "Payment channel used (card, ACH, wire, cash)"
+    sensitivity: PUBLIC
+    next_stage_transform: keep
+    
+  ip_address:
+    type: VARCHAR
+    nullable: false
+    description: "IP address of transaction"
+    sensitivity: CRITICAL
+    next_stage_transform: suppress
+    
+  device_hash:
+    type: VARCHAR
+    nullable: false
+    description: "Device fingerprint hash"
     sensitivity: CRITICAL
     next_stage_transform: pseudonymize
