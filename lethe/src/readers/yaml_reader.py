@@ -36,7 +36,7 @@ class YAMLReader:
     
     def get_target_table(self) -> str:
         """Get target table name"""
-        return self.data['source_table']
+        return self.data['target_table']
     
     def get_table_name(self) -> str:
         """Get logical table name"""
