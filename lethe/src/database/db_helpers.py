@@ -50,3 +50,4 @@ def drop_table(
 ):
     """Drop a table"""
     con.execute(f"DROP TABLE IF EXISTS {schema}.{table}")
+    logger.info(f"Dropped table {schema}.{table}")

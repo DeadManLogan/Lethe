@@ -2,9 +2,9 @@
 
 table_name: transactions
 source_schema: bronze
-source_table: transactions
+source_table: transactions_raw
 target_schema: silver
-target_table: transactions
+target_table: transactions_silver
 
 columns:
   transaction_id:
