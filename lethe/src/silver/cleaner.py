@@ -28,10 +28,6 @@ class DataCleaner:
         self.source_table = self.schema.get_source_table()
         self.target_schema = self.schema.get_target_schema()
         self.target_table = self.schema.get_target_table()
-        self.schema_contract_path = schema_contract_path
-        
-        # Load schema contract
-        self.schema_contract = self._load_schema_contract()
         
         logger.info(
             "DataCleaner initialized: %s.%s → %s.%s",

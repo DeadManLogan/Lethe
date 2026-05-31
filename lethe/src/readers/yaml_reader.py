@@ -41,3 +41,10 @@ class YAMLReader:
     def get_table_name(self) -> str:
         """Get logical table name"""
         return self.data['table_name']
+    
+    def get_column_types(self) -> dict[str, str]:
+        """Get mapping of column names to their type from the contract"""
+        return {
+            col: details['type']
+            for col, details in self.data['columns'].items()
+        }

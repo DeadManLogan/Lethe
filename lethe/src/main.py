@@ -7,11 +7,11 @@ configure_logging()
 
 start_ingestion()
 
-# # YamlReader
+# YamlReader
 # yaml_reader = YAMLReader("lethe/src/config/schema_contracts/transactions.yaml")
+# print(yaml_reader.get_column_types())
 
 
-cleaner = DataCleaner(
-    schema_contract_path='lethe/src/config/schema_contracts/transactions.yaml'
-)
-print(cleaner.get_info())
+# cleaner = DataCleaner(
+#     schema_contract_path='lethe/src/config/schema_contracts/transactions.yaml'
+# )

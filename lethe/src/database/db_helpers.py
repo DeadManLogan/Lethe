@@ -32,6 +32,7 @@ def get_columns(
     schema: str,
     table: str
 ) -> list[tuple]:
+    """Get column names and types of a table"""
     result = con.execute(f"""
         SELECT column_name, data_type
         FROM information_schema.columns
@@ -47,4 +48,5 @@ def drop_table(
     schema: str,
     table: str
 ):
+    """Drop a table"""
     con.execute(f"DROP TABLE IF EXISTS {schema}.{table}")
